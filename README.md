@@ -1,5 +1,5 @@
 
-## $\textcolor{black}{🏆\ This\ Gmail\ tool\ won\ the\ ProductHunt\ Golden\ Kitty\ Award}$
+## $\textcolor{black}{}$
 
 ![Google Sheet - Digest of Unsubscribed Emails](image.png 'Gmail Unsubscribe stores logs in your Google Sheet')
 
