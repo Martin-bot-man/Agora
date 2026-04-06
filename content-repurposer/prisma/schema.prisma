@@ -1,0 +1,137 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model JobPost {
+  id          String   @id @default(cuid())
+  userId      String?
+  companyId   String?
+  title       String
+  company     String
+  location    String?
+  jobType     String?
+  applyUrl    String?
+  applyEmail  String?
+  description String
+  createdAt   DateTime @default(now())
+
+  companyRef Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+}
+
+model JobTracker {
+  id        String   @id @default(cuid())
+  userId    String
+  stage     String
+  title     String
+  company   String
+  location  String
+  salary    String
+  notes     String
+  jd        String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  reminders JobReminder[]
+
+  @@index([userId])
+}
+
+model ResumeProfile {
+  id        String          @id @default(cuid())
+  userId    String
+  title     String
+  baseText  String
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  variants  ResumeVariant[]
+
+  @@index([userId])
+}
+
+model ResumeVariant {
+  id             String        @id @default(cuid())
+  resumeId       String
+  jobTitle       String?
+  company        String?
+  jobDescription String?
+  content        String
+  atsScore       Int?
+  createdAt      DateTime      @default(now())
+
+  resume ResumeProfile @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+}
+
+model JobReminder {
+  id           String     @id @default(cuid())
+  userId       String
+  jobTrackerId String
+  remindAt     DateTime
+  note         String
+  createdAt    DateTime   @default(now())
+  completedAt  DateTime?
+
+  job JobTracker @relation(fields: [jobTrackerId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([jobTrackerId])
+}
+
+model Company {
+  id          String          @id @default(cuid())
+  name        String
+  slug        String          @unique
+  website     String?
+  description String?
+  logoUrl     String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  members     CompanyMember[]
+  jobPosts    JobPost[]
+  candidates  Candidate[]
+  kits        InterviewKit[]
+}
+
+model CompanyMember {
+  id        String   @id @default(cuid())
+  companyId String
+  userId    String
+  role      String
+  createdAt DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, userId])
+  @@index([userId])
+}
+
+model Candidate {
+  id        String   @id @default(cuid())
+  companyId String
+  name      String
+  role      String
+  status    String
+  email     String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+}
+
+model InterviewKit {
+  id        String   @id @default(cuid())
+  companyId String
+  role      String
+  questions Json
+  createdAt DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+}
